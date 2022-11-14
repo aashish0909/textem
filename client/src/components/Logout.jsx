@@ -8,8 +8,11 @@ import { logoutRoute } from "../utils/APIRoutes";
 export default function Logout() {
   const navigate = useNavigate();
   const handleClick = async () => {
-    const id = await JSON.parse(localStorage.getItem("chat-app-user"))._id;
-    const data = await axios.get(`${logoutRoute}/${id}`);
+    const data = await axios.get(`${logoutRoute}`, {
+      headers: {
+        "auth-token": localStorage.getItem("auth-token"),
+      },
+    });
     if (data.status === 200) {
       localStorage.clear();
       navigate("/login");

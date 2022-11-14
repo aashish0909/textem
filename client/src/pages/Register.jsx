@@ -25,7 +25,7 @@ function Register() {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("chat-app-user")) {
+    if (localStorage.getItem("isAuthenticated")) {
       navigate("/");
     }
   }, []);
@@ -41,8 +41,9 @@ function Register() {
       });
       if (data.status === false) {
         toast.error(data.msg, toastOptions);
-      }
-      if (data.status === true) {
+      } else {
+        localStorage.setItem("auth-token", data.token);
+        localStorage.setItem("isAuthenticated", true);
         localStorage.setItem("chat-app-user", JSON.stringify(data.user));
         navigate("/");
       }

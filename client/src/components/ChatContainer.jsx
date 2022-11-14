@@ -13,12 +13,18 @@ export default function ChatContainer({ currentChat, socket }) {
 
   useEffect(() => {
     const getData = async () => {
-      const data = await JSON.parse(localStorage.getItem("chat-app-user"));
       if (currentChat) {
-        const response = await axios.post(recieveMessageRoute, {
-          from: data._id,
-          to: currentChat._id,
-        });
+        const response = await axios.post(
+          recieveMessageRoute,
+          {
+            to: currentChat._id,
+          },
+          {
+            headers: {
+              "auth-token": localStorage.getItem("auth-token"),
+            },
+          }
+        );
         setMessages(response.data);
       }
     };
@@ -36,11 +42,18 @@ export default function ChatContainer({ currentChat, socket }) {
     msgs.push({ fromSelf: true, message: msg });
     setMessages(msgs);
 
-    await axios.post(sendMessageRoute, {
-      from: data._id,
-      to: currentChat._id,
-      message: msg,
-    });
+    await axios.post(
+      sendMessageRoute,
+      {
+        to: currentChat._id,
+        message: msg,
+      },
+      {
+        headers: {
+          "auth-token": localStorage.getItem("auth-token"),
+        },
+      }
+    );
   };
 
   useEffect(() => {

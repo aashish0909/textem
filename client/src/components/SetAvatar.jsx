@@ -25,7 +25,7 @@ export default function SetAvatar() {
 
   useEffect(() => {
     const checkLogin = async () => {
-      if (!localStorage.getItem("chat-app-user")) navigate("/login");
+      if (!localStorage.getItem("isAuthenticated")) navigate("/login");
     };
     checkLogin();
   }, []);
@@ -35,9 +35,17 @@ export default function SetAvatar() {
       toast.error("Please select an avatar", toastOptions);
     } else {
       const user = await JSON.parse(localStorage.getItem("chat-app-user"));
-      const { data } = await axios.post(`${setAvatarRoute}/${user._id}`, {
-        image: avatars[selectedAvatar],
-      });
+      const { data } = await axios.post(
+        `${setAvatarRoute}`,
+        {
+          image: avatars[selectedAvatar],
+        },
+        {
+          headers: {
+            "auth-token": localStorage.getItem("auth-token"),
+          },
+        }
+      );
 
       if (data.isSet) {
         user.isAvatarImageSet = true;

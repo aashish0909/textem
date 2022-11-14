@@ -23,7 +23,8 @@ function Login() {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("chat-app-user")) {
+    console.log(localStorage.getItem("isAuthenticated"));
+    if (localStorage.getItem("isAuthenticated")) {
       navigate("/");
     }
   }, []);
@@ -38,8 +39,9 @@ function Login() {
       });
       if (data.status === false) {
         toast.error(data.msg, toastOptions);
-      }
-      if (data.status === true) {
+      } else {
+        localStorage.setItem("auth-token", data.token);
+        localStorage.setItem("isAuthenticated", true);
         localStorage.setItem("chat-app-user", JSON.stringify(data.user));
         navigate("/");
       }
