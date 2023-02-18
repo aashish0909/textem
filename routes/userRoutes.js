@@ -11,23 +11,23 @@ const {
   unfriend,
   sendFriendRequest,
   getFriendRequests,
-} = require("../controllers/userController");
-const authMiddleware = require("../middlewares/authMiddleware");
+} = require('../controllers/userController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
-const router = require("express").Router();
+const router = require('express').Router();
 
-router.post("/register", register);
-router.post("/login", login);
-router.post("/setAvatar", authMiddleware, setAvatar);
-router.get("/getUser", authMiddleware, getuser);
-router.get("/allUsers", authMiddleware, getAllUsers);
-router.get("/logout", authMiddleware, logOut);
+router.post('/register', register);
+router.post('/login', login);
+router.post('/setAvatar', authMiddleware, setAvatar);
+router.get('/getUser', authMiddleware, getuser);
+router.get('/allUsers', authMiddleware, getAllUsers);
+router.get('/logout', authMiddleware, logOut);
 
-router.post("/sendfriendrequest", authMiddleware, sendFriendRequest);
-router.get("/getfriendrequests", authMiddleware, getFriendRequests);
-router.get("/getfriendrequest/", authMiddleware, getFriendRequest);
-router.post("/acceptfriendrequest", authMiddleware, acceptFriendRequest);
-router.post("/rejectfriendrequest", authMiddleware, rejectFriendRequest);
-router.post("/unfriend", authMiddleware, unfriend);
+router.post('/sendfriendrequest', authMiddleware, sendFriendRequest);
+router.get('/getfriendrequests', authMiddleware, getFriendRequests);
+router.get('/getfriendrequest/', authMiddleware, getFriendRequest);
+router.post('/acceptfriendrequest', authMiddleware, acceptFriendRequest);
+router.post('/rejectfriendrequest', authMiddleware, rejectFriendRequest);
+router.post('/unfriend', authMiddleware, unfriend);
 
 module.exports = router;

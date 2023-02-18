@@ -1,4 +1,4 @@
-const Message = require("../models/messageModel");
+const Message = require('../models/messageModel');
 
 module.exports.addMessage = async (req, res, next) => {
   try {
@@ -9,8 +9,8 @@ module.exports.addMessage = async (req, res, next) => {
       user: [from, to],
       sender: from,
     });
-    if (data) return res.json({ msg: "Message added successfully." });
-    else return res.json({ msg: "Failed to add message to the database" });
+    if (data) return res.json({ msg: 'Message added successfully.' });
+    else return res.json({ msg: 'Failed to add message to the database' });
   } catch (err) {
     next(err);
   }

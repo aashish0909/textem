@@ -1,31 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import logo from "../assets/logo.svg";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
-import { loginRoute } from "../utils/APIRoutes";
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import logo from '../assets/logo.svg';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import { loginRoute } from '../utils/APIRoutes';
 
 function Login() {
   const navigate = useNavigate();
   const [values, setValues] = useState({
-    username: "",
-    password: "",
+    username: '',
+    password: '',
   });
 
   const toastOptions = {
-    position: "bottom-right",
+    position: 'bottom-right',
     autoClose: 8000,
     pauseOnHover: true,
     draggable: true,
-    theme: "dark",
+    theme: 'dark',
   };
 
   useEffect(() => {
-    console.log(localStorage.getItem("isAuthenticated"));
-    if (localStorage.getItem("isAuthenticated")) {
-      navigate("/");
+    if (localStorage.getItem('isAuthenticated')) {
+      navigate('/');
     }
   }, []);
 
@@ -33,28 +32,28 @@ function Login() {
     event.preventDefault();
     if (handleValidation()) {
       const { username, password } = values;
-      const { data } = await axios.post(loginRoute, {
+      const res = await axios.post(loginRoute, {
         username,
         password,
       });
-      if (data.status === false) {
-        toast.error(data.msg, toastOptions);
+      if (res.data.success === false) {
+        toast.error(res.data.msg, toastOptions);
       } else {
-        localStorage.setItem("auth-token", data.token);
-        localStorage.setItem("isAuthenticated", true);
-        localStorage.setItem("chat-app-user", JSON.stringify(data.user));
-        navigate("/");
+        localStorage.setItem('auth-token', res.data.token);
+        localStorage.setItem('isAuthenticated', true);
+        localStorage.setItem('chat-app-user', JSON.stringify(res.data.user));
+        navigate('/');
       }
     }
   };
 
   const handleValidation = () => {
     const { username, password } = values;
-    if (password === "") {
-      toast.error("Username and Password are required", toastOptions);
+    if (password === '') {
+      toast.error('Username and Password are required', toastOptions);
       return false;
-    } else if (username.length === "") {
-      toast.error("Username and Password are required", toastOptions);
+    } else if (username.length === '') {
+      toast.error('Username and Password are required', toastOptions);
       return false;
     }
     return true;
@@ -68,26 +67,26 @@ function Login() {
     <>
       <FormContainer>
         <form onSubmit={(event) => handleSubmit(event)}>
-          <div className="brand">
-            <img src={logo} alt="logo" />
+          <div className='brand'>
+            <img src={logo} alt='logo' />
             <h1>textem</h1>
           </div>
           <input
-            type="text"
-            placeholder="Username"
-            name="username"
+            type='text'
+            placeholder='Username'
+            name='username'
             onChange={(e) => handleChange(e)}
-            min="3"
+            min='3'
           />
           <input
-            type="password"
-            placeholder="Password"
-            name="password"
+            type='password'
+            placeholder='Password'
+            name='password'
             onChange={(e) => handleChange(e)}
           />
-          <button type="submit">Login</button>
+          <button type='submit'>Login</button>
           <span>
-            Don't have an account? <Link to="/register">Register</Link>
+            Don't have an account? <Link to='/register'>Register</Link>
           </span>
         </form>
       </FormContainer>

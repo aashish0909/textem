@@ -1,18 +1,17 @@
-const User = require("../models/userModel");
-const FriendRequest = require("../models/friendRequest");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const authMiddleware = require("../middlewares/authMiddleware");
+const User = require('../models/userModel');
+const FriendRequest = require('../models/friendRequest');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 module.exports.register = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
     const usernameCheck = await User.findOne({ username });
     if (usernameCheck)
-      return res.json({ msg: "Username already used", status: false });
+      return res.json({ msg: 'Username already used', status: false });
     const emailCheck = await User.findOne({ email });
     if (emailCheck)
-      return res.json({ msg: "Email already used", status: false });
+      return res.json({ msg: 'Email already used', status: false });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
@@ -25,7 +24,7 @@ module.exports.register = async (req, res, next) => {
         id: user._id,
       },
     };
-    const data = await User.findById(user._id).select("-password");
+    const data = await User.findById(user._id).select('-password');
     jwt.sign(
       dataJWT,
       process.env.JWT_SECRET,
@@ -47,7 +46,7 @@ module.exports.login = async (req, res, next) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
     if (!user)
-      return res.json({ msg: "Incorrect username or password", status: false });
+      return res.json({ msg: 'Incorrect username or password', status: false });
 
     const dataJWT = {
       user: {
@@ -55,13 +54,11 @@ module.exports.login = async (req, res, next) => {
       },
     };
 
-    const data = await User.findById(user._id).select("-password");
+    const data = await User.findById(user._id).select('-password');
 
     bcrypt.compare(password, user.password).then((isMatch) => {
       if (!isMatch)
-        return res
-          .status(400)
-          .json({ success: false, msg: "Invalid Credentials" });
+        return res.json({ success: false, msg: 'Invalid Credentials' });
 
       jwt.sign(
         dataJWT,
@@ -99,7 +96,7 @@ module.exports.setAvatar = async (req, res, next) => {
 module.exports.getuser = async (req, res) => {
   try {
     userID = req.user.id;
-    const user = await User.findById(userID).select("-password");
+    const user = await User.findById(userID).select('-password');
     res.json(user);
   } catch (err) {
     next(err);
@@ -109,10 +106,10 @@ module.exports.getuser = async (req, res) => {
 module.exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find({ _id: { $ne: req.user.id } }).select([
-      "email",
-      "username",
-      "avatarImage",
-      "_id",
+      'email',
+      'username',
+      'avatarImage',
+      '_id',
     ]);
     return res.json(users);
   } catch (err) {
@@ -122,7 +119,7 @@ module.exports.getAllUsers = async (req, res, next) => {
 
 module.exports.logOut = (req, res, next) => {
   try {
-    if (!req.user.id) return res.json({ msg: "User id is required " });
+    if (!req.user.id) return res.json({ msg: 'User id is required ' });
     onlineUsers.delete(req.user.id);
     return res.status(200).send();
   } catch (ex) {
@@ -130,7 +127,7 @@ module.exports.logOut = (req, res, next) => {
   }
 };
 
-module.exports.sendFriendRequest = async (req, res, next) => {
+module.exports.sendFriendRequest = async (req, res) => {
   const userId = req.user.id;
   const { recipientId } = req.body;
 
@@ -145,7 +142,7 @@ module.exports.sendFriendRequest = async (req, res, next) => {
   const newFriendRequest = new FriendRequest({
     sender: userId,
     recipient: recipientId,
-    status: "pending",
+    status: 'pending',
   });
 
   newFriendRequest
@@ -158,7 +155,7 @@ module.exports.sendFriendRequest = async (req, res, next) => {
     });
 };
 
-module.exports.getFriendRequests = async (req, res, next) => {
+module.exports.getFriendRequests = async (req, res) => {
   const requests = await FriendRequest.find({
     recipient: req.user.id,
   });
@@ -168,7 +165,7 @@ module.exports.getFriendRequests = async (req, res, next) => {
 // get single friend request by id, returns true or false
 // determines if current user has pending or existing
 // friend request with owner of profile being viewed
-module.exports.getFriendRequest = async (req, res, next) => {
+module.exports.getFriendRequest = async (req, res) => {
   const { profileUserId } = req.body;
   const userId = req.user.id;
 
@@ -209,7 +206,7 @@ module.exports.acceptFriendRequest = async (req, res) => {
         recipient: recipientId,
       },
       {
-        $set: { status: "accepted" },
+        $set: { status: 'accepted' },
         $push: { friendshipParticipants: [senderId, recipientId] },
       },
       { new: true }
@@ -217,14 +214,13 @@ module.exports.acceptFriendRequest = async (req, res) => {
 
     const updatedRequests = await FriendRequest.find({
       recipient: req.user.id,
-      status: "pending",
+      status: 'pending',
     });
     res.status(200).send({
       updatedRequests: updatedRequests,
       updatedUserFriendList: updatedRecipient.friendList,
     });
   }
-  1;
 };
 
 module.exports.rejectFriendRequest = async (req, res) => {
@@ -237,7 +233,7 @@ module.exports.rejectFriendRequest = async (req, res) => {
 
   const updatedRequests = await FriendRequest.find({
     recipient: req.tokenUser.userId,
-    status: "pending",
+    status: 'pending',
   });
 
   res.status(200).send({
@@ -253,12 +249,12 @@ module.exports.unfriend = async (req, res) => {
     { _id: userId },
     { $pullAll: { friendList: [friendId] } },
     { new: true }
-  ).select("-password");
+  ).select('-password');
   const updatedFriend = await User.findOneAndUpdate(
     { _id: friendId },
     { $pullAll: { friendList: [userId] } },
     { new: true }
-  ).select("-password");
+  ).select('-password');
 
   const deletedFriendRequest = await FriendRequest.findOneAndDelete({
     $and: [

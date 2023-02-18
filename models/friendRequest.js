@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const friendRequestSchema = new Schema(
@@ -6,12 +6,12 @@ const friendRequestSchema = new Schema(
     sender: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: 'User',
     },
     recipient: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: 'User',
     },
     status: {
       type: String,
@@ -24,4 +24,4 @@ const friendRequestSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("FriendRequest", friendRequestSchema);
+module.exports = mongoose.model('FriendRequest', friendRequestSchema);

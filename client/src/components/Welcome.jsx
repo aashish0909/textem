@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-import Robot from "../assets/robot.gif";
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import Robot from '../assets/robot.gif';
 
 export default function Welcome() {
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState('');
   useEffect(() => {
     const getUser = async () => {
       setUserName(
-        await JSON.parse(localStorage.getItem("chat-app-user")).username
+        await JSON.parse(localStorage.getItem('chat-app-user')).username
       );
     };
     getUser();
   }, []);
   return (
     <Container>
-      <img src={Robot} alt="Robot" />
+      <img src={Robot} alt='Robot' />
       <h1>
         Welcome, <span>{userName}</span>
       </h1>
