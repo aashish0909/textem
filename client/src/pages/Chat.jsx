@@ -29,11 +29,31 @@ function Chat() {
 
   useEffect(() => {
     if (currentUser) {
-      socket.current = io(host);
+      socket.current = io(host, {
+        reconnectionAttempts: 10, // Try to reconnect 10 times
+        reconnectionDelay: 1000, // Wait for 1 second before trying to reconnect
+        reconnectionDelayMax: 5000, // Wait for up to 5 seconds before trying to reconnect
+      });
+      
       socket.current.emit('add-user', currentUser._id);
       socket.current.emit('update-user-status', {
         username: currentUser.username,
         status: true,
+      });
+
+      // Listen for heartbeat events from the server
+      socket.current.on('heartbeat', () => {
+        // Send heartbeat acknowledgement to the server
+        socket.current.emit('heartbeat-ack');
+      });
+
+      // Handle disconnection events
+      socket.current.on('disconnect', () => {
+        // Update the user status to false
+        socket.current.emit('update-user-status', {
+          username: currentUser.username,
+          status: false,
+        });
       });
     }
   }, [currentUser]);

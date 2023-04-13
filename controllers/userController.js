@@ -110,11 +110,27 @@ module.exports.getAllUsers = async (req, res, next) => {
       'username',
       'avatarImage',
       '_id',
+      'status',
     ]);
     return res.json(users);
   } catch (err) {
     next(err);
   }
+};
+
+module.exports.updateUserStatus = async (req, res) => {
+  User.findOneAndUpdate(
+    { username: req.body.username },
+    { online: req.body.status },
+    (err, user) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+      } else {
+        res.status(200).json({ message: 'User status updated successfully' });
+      }
+    }
+  );
 };
 
 module.exports.logOut = (req, res, next) => {
@@ -126,6 +142,8 @@ module.exports.logOut = (req, res, next) => {
     next(ex);
   }
 };
+
+///FRIEND REQUESTS
 
 module.exports.sendFriendRequest = async (req, res) => {
   const userId = req.user.id;

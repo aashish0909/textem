@@ -83,18 +83,63 @@ io.on('connection', (socket) => {
     );
   });
 
+  // Heartbeat implementation
+  let heartbeatTimeout;
+  function heartbeat() {
+    clearTimeout(heartbeatTimeout);
+    heartbeatTimeout = setTimeout(() => {
+      // Client didn't respond, consider it disconnected
+      const userId = getUserIdBySocketId(socket.id);
+      if (userId) {
+        onlineUsers.delete(userId);
+        User.findOneAndUpdate({ _id: userId }, { online: false }, (err) => {
+          if (err) {
+            console.error(err);
+          } else {
+            // io.emit('user-status-updated', {
+            //   username: getUsernameById(userId),
+            //   status: false,
+            // });
+          }
+        });
+      }
+      socket.disconnect(true); // Disconnect the socket
+    }, 30000); // Heartbeat timeout
+  }
+
+  socket.on('heartbeat', () => {
+    socket.emit('heartbeat-response');
+    heartbeat();
+  });
+
   socket.on('disconnect', (data) => {
-    onlineUsers.delete(data.userId);
-    User.findOneAndUpdate(
-      { username: data.username },
-      { online: data.status },
-      (err) => {
+    clearTimeout(heartbeatTimeout);
+    const userId = getUserIdBySocketId(socket.id);
+    if (userId) {
+      onlineUsers.delete(userId);
+      User.findOneAndUpdate({ _id: userId }, { online: false }, (err) => {
         if (err) {
           console.error(err);
         } else {
-          io.emit('user-status-updated', data);
+          // io.emit('user-status-updated', {
+          //   username: getUsernameById(userId),
+          //   status: false,
+          // });
         }
-      }
-    );
+      });
+    }
   });
+
+  function getUserIdBySocketId(socketId) {
+    for (let [userId, id] of onlineUsers.entries()) {
+      if (id === socketId) {
+        return userId;
+      }
+    }
+    return null;
+  }
+
+  function getUsernameById(userId) {
+    // Implement your logic to get the username from the user id
+  }
 });

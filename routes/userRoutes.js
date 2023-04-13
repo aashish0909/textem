@@ -3,6 +3,7 @@ const {
   login,
   setAvatar,
   getAllUsers,
+  updateUserStatus,
   logOut,
   getuser,
   getFriendRequest,
@@ -21,6 +22,7 @@ router.post('/login', login);
 router.post('/setAvatar', authMiddleware, setAvatar);
 router.get('/getUser', authMiddleware, getuser);
 router.get('/allUsers', authMiddleware, getAllUsers);
+router.post('/updateUserStatus', updateUserStatus);
 router.get('/logout', authMiddleware, logOut);
 
 router.post('/sendfriendrequest', authMiddleware, sendFriendRequest);
