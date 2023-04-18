@@ -104,10 +104,11 @@ io.on('connection', (socket) => {
         });
       }
       socket.disconnect(true); // Disconnect the socket
-    }, 30000); // Heartbeat timeout
+    }, 10000); // Heartbeat timeout
   }
 
   socket.on('heartbeat', () => {
+    const userId = getUserIdBySocketId(socket.id);
     socket.emit('heartbeat-response');
     heartbeat();
   });
@@ -140,6 +141,7 @@ io.on('connection', (socket) => {
   }
 
   function getUsernameById(userId) {
-    // Implement your logic to get the username from the user id
+    const user = User.findById(userId);
+    return user;
   }
 });

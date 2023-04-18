@@ -12,6 +12,7 @@ const {
   unfriend,
   sendFriendRequest,
   getFriendRequests,
+  getFriends,
 } = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
@@ -25,6 +26,7 @@ router.get('/allUsers', authMiddleware, getAllUsers);
 router.post('/updateUserStatus', updateUserStatus);
 router.get('/logout', authMiddleware, logOut);
 
+router.get('/getFriends', authMiddleware, getFriends);
 router.post('/sendfriendrequest', authMiddleware, sendFriendRequest);
 router.get('/getfriendrequests', authMiddleware, getFriendRequests);
 router.get('/getfriendrequest/', authMiddleware, getFriendRequest);

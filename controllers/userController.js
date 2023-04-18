@@ -110,7 +110,7 @@ module.exports.getAllUsers = async (req, res, next) => {
       'username',
       'avatarImage',
       '_id',
-      'status',
+      'online',
     ]);
     return res.json(users);
   } catch (err) {
@@ -145,6 +145,15 @@ module.exports.logOut = (req, res, next) => {
 
 ///FRIEND REQUESTS
 
+module.exports.getFriends = async (req, res) => {
+  const userID = req.user.id;
+  const friends = await User.findById(userID).select('friendList');
+
+  const friendList = await User.find({_id: {$in: friends.friendList}});
+
+  res.json(friendList);
+}
+
 module.exports.sendFriendRequest = async (req, res) => {
   const userId = req.user.id;
   const { recipientId } = req.body;
@@ -176,8 +185,24 @@ module.exports.sendFriendRequest = async (req, res) => {
 module.exports.getFriendRequests = async (req, res) => {
   const requests = await FriendRequest.find({
     recipient: req.user.id,
+  }).populate('sender', 'username');
+
+  const response = requests.map(request => {
+    return {
+      _id: request._id,
+      senderId: request.sender._id,
+      senderUsername: request.sender.username,
+      recipientId: request.recipient,
+      status: request.status,
+      friendshipParticipants: request.friendshipParticipants,
+      createdAt: request.createdAt,
+      updatedAt: request.updatedAt,
+      __v: request.__v,
+    };
   });
-  res.status(200).send(requests);
+
+  res.status(200).send(response);
+
 };
 
 // get single friend request by id, returns true or false
@@ -236,7 +261,7 @@ module.exports.acceptFriendRequest = async (req, res) => {
     });
     res.status(200).send({
       updatedRequests: updatedRequests,
-      updatedUserFriendList: updatedRecipient.friendList,
+      updatedUserfriendList: updatedRecipient.friendList,
     });
   }
 };

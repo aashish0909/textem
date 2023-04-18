@@ -1,4 +1,4 @@
-export const host = '';
+export const host = 'http://localhost:5000';
 export const registerRoute = `${host}/api/auth/register`;
 export const loginRoute = `${host}/api/auth/login`;
 export const setAvatarRoute = `${host}/api/auth/setAvatar`;
@@ -7,3 +7,5 @@ export const updateUserStatus = `${host}/api/auth/updateUserStatus`;
 export const logoutRoute = `${host}/api/auth/logout`;
 export const sendMessageRoute = `${host}/api/messages/addmsg`;
 export const recieveMessageRoute = `${host}/api/messages/getmsg`;
+export const getFriends = `${host}/api/auth/getFriends`;
+export const getFriendRequests = `${host}/api/auth/getfriendrequests`

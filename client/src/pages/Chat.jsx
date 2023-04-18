@@ -34,7 +34,7 @@ function Chat() {
         reconnectionDelay: 1000, // Wait for 1 second before trying to reconnect
         reconnectionDelayMax: 5000, // Wait for up to 5 seconds before trying to reconnect
       });
-      
+
       socket.current.emit('add-user', currentUser._id);
       socket.current.emit('update-user-status', {
         username: currentUser.username,
