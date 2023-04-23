@@ -63,7 +63,7 @@ module.exports.login = async (req, res, next) => {
       jwt.sign(
         dataJWT,
         process.env.JWT_SECRET,
-        { expiresIn: 3600 },
+        { expiresIn: 360000 },
         (err, token) => {
           if (err) throw err;
           res.json({ success: true, token, user: data });
@@ -149,10 +149,42 @@ module.exports.getFriends = async (req, res) => {
   const userID = req.user.id;
   const friends = await User.findById(userID).select('friendList');
 
-  const friendList = await User.find({_id: {$in: friends.friendList}});
+  const friendList = await User.find({ _id: { $in: friends.friendList } });
 
   res.json(friendList);
-}
+};
+
+module.exports.getNonFriends = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const users = await User.find({
+      _id: { $ne: userId },
+      friendList: { $nin: [userId] },
+    }).select(['_id', 'username']);
+
+    const friendRequests = await FriendRequest.find({
+      $or: [{ sender: userId }, { recipient: userId }],
+      status: 'pending',
+    });
+
+    const friendRequestsParticipants = friendRequests.reduce(
+      (acc, curr) => [...acc, curr.sender, curr.recipient],
+      []
+    );
+
+    const notFriends = users.filter((user) => {
+      const userIdString = user._id.toString();
+      return !friendRequestsParticipants.some((participantId) =>
+        participantId.equals(userIdString)
+      );
+    });
+
+    res.status(200).json(notFriends);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+  }
+};
 
 module.exports.sendFriendRequest = async (req, res) => {
   const userId = req.user.id;
@@ -185,9 +217,10 @@ module.exports.sendFriendRequest = async (req, res) => {
 module.exports.getFriendRequests = async (req, res) => {
   const requests = await FriendRequest.find({
     recipient: req.user.id,
+    status: 'pending',
   }).populate('sender', 'username');
 
-  const response = requests.map(request => {
+  const response = requests.map((request) => {
     return {
       _id: request._id,
       senderId: request.sender._id,
@@ -202,7 +235,6 @@ module.exports.getFriendRequests = async (req, res) => {
   });
 
   res.status(200).send(response);
-
 };
 
 // get single friend request by id, returns true or false
@@ -268,14 +300,14 @@ module.exports.acceptFriendRequest = async (req, res) => {
 
 module.exports.rejectFriendRequest = async (req, res) => {
   const recipientId = req.user.id;
-  const senderId = req.body.sender;
+  const { senderId } = req.body;
   const deletedFriendRequest = await FriendRequest.findOneAndDelete({
     sender: senderId,
     recipient: recipientId,
   });
 
   const updatedRequests = await FriendRequest.find({
-    recipient: req.tokenUser.userId,
+    recipient: recipientId,
     status: 'pending',
   });
 

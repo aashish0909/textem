@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import ChatInput from './ChatInput';
-import Logout from './Logout';
-import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 import { recieveMessageRoute, sendMessageRoute } from '../utils/APIRoutes';
+import ChatInput from './ChatInput';
 
 export default function ChatContainer({ currentChat, socket }) {
   const [messages, setMessages] = useState([]);
@@ -80,7 +79,7 @@ export default function ChatContainer({ currentChat, socket }) {
             <div className='user-details'>
               <div className='avatar'>
                 <img
-                  src={`data:image/svg+xml;base64,${currentChat.avatarImage}`}
+                  src={`data:image/png;base64,${currentChat.avatarImage}`}
                   alt='avatar'
                 />
               </div>
@@ -88,7 +87,6 @@ export default function ChatContainer({ currentChat, socket }) {
                 <h3>{currentChat.username}</h3>
               </div>
             </div>
-            <Logout socket={socket} />
           </div>
           <div className='chat-messages'>
             {messages.map((message) => {

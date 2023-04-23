@@ -1,193 +1,243 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { BiCheck, BiUserPlus, BiUserX, BiX } from 'react-icons/bi';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { BiCheck, BiUserPlus, BiUserX, BiX } from 'react-icons/bi';
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import styled from 'styled-components';
+import Loading from '../components/Loading';
+import Navbar from '../components/Navbar';
 import {
   acceptFriendRequest,
   getFriendRequests,
   getFriends,
+  getNonFriends,
   rejectFriendRequest,
+  sendFriendRequest,
   unfriend,
 } from '../utils/APIRoutes';
 
 const Friends = () => {
-  const [friends, setFriends] = useState([
-    {
-      _id: 1,
-      username: 'aashish',
-    },
-    {
-      _id: 2,
-      username: 'ayush',
-    },
-  ]);
+  const navigate = useNavigate();
+  const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
-  const [users, setUsers] = useState([
-    { _id: 1, username: 'eleven' },
-    { _id: 2, username: 'max' },
-  ]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const toastOptions = {
+    position: 'bottom-right',
+    autoClose: 8000,
+    pauseOnHover: true,
+    draggable: true,
+    theme: 'dark',
+  };
 
   useEffect(() => {
-    // const fetchFriends = async () => {
-    //   try {
-    //     const resFriends = await axios.get(getFriends, {
-    //       headers: {
-    //         'auth-token': localStorage.getItem('auth-token'),
-    //       },
-    //     });
-    //     const resRequests = await axios.get(getFriendRequests, {
-    //       headers: {
-    //         'auth-token': localStorage.getItem('auth-token'),
-    //       },
-    //     });
-
-    //     setFriends(Array.from(resFriends.data));
-    //     setRequests(Array.from(resRequests.data));
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // };
-    // fetchFriends();
-    setRequests([
-      {
-        _id: '65jkakljfdq928389yksd',
-        senderUsername: 'ashutosh',
-        status: 'Pending',
-      },
-    ]);
+    const checkLogin = async () => {
+      if (!localStorage.getItem('chat-app-user')) navigate('/login');
+    };
+    checkLogin();
   }, []);
 
-  const handleClickUser = async (event, index) => {};
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const resFriends = await axios.get(getFriends, {
+          headers: {
+            'auth-token': localStorage.getItem('auth-token'),
+          },
+        });
+        const resRequests = await axios.get(getFriendRequests, {
+          headers: {
+            'auth-token': localStorage.getItem('auth-token'),
+          },
+        });
+        const resUsers = await axios.get(getNonFriends, {
+          headers: {
+            'auth-token': localStorage.getItem('auth-token'),
+          },
+        });
+
+        setFriends(Array.from(resFriends.data));
+        setRequests(Array.from(resRequests.data));
+        setUsers(Array.from(resUsers.data));
+        setTimeout(() => setLoading(false), 2000);
+      } catch (error) {}
+    };
+    fetchFriends();
+  }, []);
+
+  const handleClickUser = async (event, index) => {
+    const currentUserID = event.currentTarget.id;
+    const res = await axios.post(
+      sendFriendRequest,
+      {
+        recipientId: currentUserID,
+      },
+      {
+        headers: {
+          'auth-token': localStorage.getItem('auth-token'),
+        },
+      }
+    );
+
+    const newUsers = users.filter((user) => user._id != currentUserID);
+    setUsers(newUsers);
+    toast.success('Friend Request Sent!', toastOptions);
+  };
 
   const handleClickAccept = async (event, index) => {
     const currentUser = requests[index].senderUsername;
     const currentUserID = event.currentTarget.id;
-    // const res = await axios.post(
-    //   acceptFriendRequest,
-    //   {
-    //     senderId: currentUserID,
-    //   },
-    //   {
-    //     headers: {
-    //       'auth-token': localStorage.getItem('auth-token'),
-    //     },
-    //   }
-    // );
+    const res = await axios.post(
+      acceptFriendRequest,
+      {
+        senderId: currentUserID,
+      },
+      {
+        headers: {
+          'auth-token': localStorage.getItem('auth-token'),
+        },
+      }
+    );
+
+    const newRequests = requests.filter(
+      (request) => request.senderId != currentUserID
+    );
+    setRequests(newRequests);
 
     const newFriend = {
       _id: currentUserID,
       username: currentUser,
     };
-    const newRequests = requests.filter(
-      (request) => request._id != currentUserID
-    );
-    setRequests(newRequests);
-    setFriends((current) => [...current, newFriend]);
+    const newFriends = [...friends];
+    newFriends.push(newFriend);
+    setFriends(newFriends);
+
+    toast.success('Accepted Friend Request!', toastOptions);
   };
 
   const handleClickReject = async (event) => {
     const currentUserID = event.currentTarget.id;
-
-    // const res = await axios.post(
-    //   rejectFriendRequest,
-    //   {
-    //     senderId: currentUserID,
-    //   },
-    //   {
-    //     headers: {
-    //       'auth-token': localStorage.getItem('auth-token'),
-    //     },
-    //   }
-    // );
+    const res = await axios.post(
+      rejectFriendRequest,
+      {
+        senderId: currentUserID,
+      },
+      {
+        headers: {
+          'auth-token': localStorage.getItem('auth-token'),
+        },
+      }
+    );
 
     const newRequests = requests.filter(
-      (request) => request._id != currentUserID
+      (request) => request.senderId != currentUserID
     );
     setRequests(newRequests);
+
+    toast.error('Rejected Friend Request!', toastOptions);
   };
 
   const handleClickUnfriend = async (event) => {
     const currentUserID = event.currentTarget.id;
 
-    // const res = await axios.post(
-    //   unfriend,
-    //   {
-    //     friendId: currentUserID,
-    //   },
-    //   {
-    //     headers: {
-    //       'auth-token': localStorage.getItem('auth-token'),
-    //     },
-    //   }
-    // );
+    const res = await axios.post(
+      unfriend,
+      {
+        friendId: currentUserID,
+      },
+      {
+        headers: {
+          'auth-token': localStorage.getItem('auth-token'),
+        },
+      }
+    );
 
     const newFriends = friends.filter((friend) => friend._id != currentUserID);
     setFriends(newFriends);
+
+    toast.error('Removed from friends!', toastOptions);
   };
 
   return (
-    <Container>
-      <UsersContainer>
-        <h2>Users</h2>
-        <UsersList>
-          {users.map((user, index) => (
-            <User key={user._id}>
-              <div className='UserUsername'>{user.username}</div>
-              <button
-                onClick={(event) => handleClickUser(event, index)}
-                id={user._id}
-                className='AddUser'
-              >
-                <BiUserPlus />
-              </button>
-            </User>
-          ))}
-        </UsersList>
-      </UsersContainer>
-      <FriendRequestsContainer>
-        <h2>Pending Friend Requests</h2>
-        <FriendRequestsList>
-          {requests.map((request, index) => (
-            <FriendRequest key={request._id}>
-              <div className='FriendRequestUsername'>
-                {request.senderUsername}
-              </div>
-              <button
-                onClick={(event) => handleClickAccept(event, index)}
-                id={request._id}
-                className='AcceptFriendRequest'
-              >
-                <BiCheck />
-              </button>
-              <button
-                onClick={(event) => handleClickReject(event)}
-                id={request._id}
-                className='RejectFriendRequest'
-              >
-                <BiX />
-              </button>
-            </FriendRequest>
-          ))}
-        </FriendRequestsList>
-      </FriendRequestsContainer>
-      <FriendsContainer>
-        <h2>Friends</h2>
-        <FriendsList>
-          {friends.map((friend) => (
-            <Friend key={friend._id}>
-              <div className='FriendUsername'>{friend.username}</div>
-              <button
-                className='Unfriend'
-                onClick={(event) => handleClickUnfriend(event)}
-                id={friend._id}
-              >
-                <BiUserX />
-              </button>
-            </Friend>
-          ))}
-        </FriendsList>
-      </FriendsContainer>
-    </Container>
+    <>
+      <Navbar />
+      <Container>
+        <UsersContainer>
+          <h2>Users</h2>
+          {loading === false ? (
+            <UsersList>
+              {users.map((user, index) => (
+                <User key={index}>
+                  <div className='UserUsername'>{user.username}</div>
+                  <button
+                    onClick={(event) => handleClickUser(event, index)}
+                    id={user._id}
+                    className='AddUser'
+                  >
+                    <BiUserPlus />
+                  </button>
+                </User>
+              ))}
+            </UsersList>
+          ) : (
+            <Loading />
+          )}
+        </UsersContainer>
+        <FriendRequestsContainer>
+          <h2>Pending Friend Requests</h2>
+          {loading === false ? (
+            <FriendRequestsList>
+              {requests.map((request, index) => (
+                <FriendRequest key={index}>
+                  <div className='FriendRequestUsername'>
+                    {request.senderUsername}
+                  </div>
+                  <button
+                    onClick={(event) => handleClickAccept(event, index)}
+                    id={request.senderId}
+                    className='AcceptFriendRequest'
+                  >
+                    <BiCheck />
+                  </button>
+                  <button
+                    onClick={(event) => handleClickReject(event)}
+                    id={request.senderId}
+                    className='RejectFriendRequest'
+                  >
+                    <BiX />
+                  </button>
+                </FriendRequest>
+              ))}
+            </FriendRequestsList>
+          ) : (
+            <Loading />
+          )}
+        </FriendRequestsContainer>
+        <FriendsContainer>
+          <h2>Friends</h2>
+          {loading === false ? (
+            <FriendsList>
+              {friends.map((friend, index) => (
+                <Friend key={index}>
+                  <div className='FriendUsername'>{friend.username}</div>
+                  <button
+                    className='Unfriend'
+                    onClick={(event) => handleClickUnfriend(event)}
+                    id={friend._id}
+                  >
+                    <BiUserX />
+                  </button>
+                </Friend>
+              ))}
+            </FriendsList>
+          ) : (
+            <Loading />
+          )}
+        </FriendsContainer>
+      </Container>
+      <ToastContainer />
+    </>
   );
 };
 
@@ -257,6 +307,8 @@ const UsersContainer = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: #252545;
+  overflow: scroll;
+  overflow-x: hidden;
 `;
 
 const UsersList = styled.ul`

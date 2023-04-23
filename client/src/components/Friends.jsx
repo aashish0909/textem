@@ -1,26 +1,16 @@
-import axios from 'axios';
 import React from 'react';
-import { BiPowerOff } from 'react-icons/bi';
+import { FaUserFriends } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { logoutRoute } from '../utils/APIRoutes';
 
-export default function Logout({ socket }) {
+export default function Friends() {
   const navigate = useNavigate();
   const handleClick = async () => {
-    const data = await axios.get(`${logoutRoute}`, {
-      headers: {
-        'auth-token': localStorage.getItem('auth-token'),
-      },
-    });
-    if (data.status === 200) {
-      localStorage.clear();
-      navigate('/login');
-    }
+    navigate('/friends');
   };
   return (
     <Button onClick={handleClick}>
-      <BiPowerOff />
+      <FaUserFriends />
     </Button>
   );
 }

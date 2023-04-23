@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Buffer } from 'buffer';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
 import loader from '../assets/loader.gif';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
 import { setAvatarRoute } from '../utils/APIRoutes';
-import { Buffer } from 'buffer';
 
 export default function SetAvatar() {
   const navigate = useNavigate();
-  const api = 'https://api.multiavatar.com/45678945';
   const [avatars, setAvatars] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAvatar, setSelectedAvatar] = useState(undefined);
@@ -22,13 +21,6 @@ export default function SetAvatar() {
     draggable: true,
     theme: 'dark',
   };
-
-  useEffect(() => {
-    const checkLogin = async () => {
-      if (!localStorage.getItem('isAuthenticated')) navigate('/login');
-    };
-    checkLogin();
-  }, []);
 
   const setProfilePicture = async () => {
     if (selectedAvatar === undefined) {
@@ -58,19 +50,28 @@ export default function SetAvatar() {
     }
   };
   useEffect(() => {
+    const checkLogin = async () => {
+      if (!localStorage.getItem('isAuthenticated')) navigate('/login');
+    };
     const fetchData = async () => {
       const data = [];
       for (let i = 0; i < 4; i++) {
         const image = await axios.get(
-          `${api}/${Math.round(Math.random() * 1000)}`
+          `https://api.multiavatar.com/${Math.round(
+            Math.random() * 1000
+          )}.png?apikey=eDgLYrEf14p5Cz`,
+          {
+            responseType: 'arraybuffer',
+          }
         );
-        const buffer = new Buffer(image.data);
+        const buffer = Buffer.from(image.data, 'binary');
         data.push(buffer.toString('base64'));
       }
       setAvatars(data);
       setIsLoading(false);
     };
     fetchData();
+    checkLogin();
   }, []);
 
   return (
@@ -94,7 +95,7 @@ export default function SetAvatar() {
                   }`}
                 >
                   <img
-                    src={`data:image/svg+xml;base64,${avatar}`}
+                    src={`data:image/png;base64,${avatar}`}
                     alt='avatar'
                     onClick={() => setSelectedAvatar(index)}
                   />

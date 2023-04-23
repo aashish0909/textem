@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
 import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { allUsersRoute, host } from '../utils/APIRoutes';
+import { io } from 'socket.io-client';
+import styled from 'styled-components';
+import ChatContainer from '../components/ChatContainer';
 import Contacts from '../components/Contacts';
 import Welcome from '../components/Welcome';
-import ChatContainer from '../components/ChatContainer';
-import { io } from 'socket.io-client';
+import { getFriends, host } from '../utils/APIRoutes';
 
 function Chat() {
   const socket = useRef();
@@ -36,25 +36,6 @@ function Chat() {
       });
 
       socket.current.emit('add-user', currentUser._id);
-      socket.current.emit('update-user-status', {
-        username: currentUser.username,
-        status: true,
-      });
-
-      // Listen for heartbeat events from the server
-      socket.current.on('heartbeat', () => {
-        // Send heartbeat acknowledgement to the server
-        socket.current.emit('heartbeat-ack');
-      });
-
-      // Handle disconnection events
-      socket.current.on('disconnect', () => {
-        // Update the user status to false
-        socket.current.emit('update-user-status', {
-          username: currentUser.username,
-          status: false,
-        });
-      });
     }
   }, [currentUser]);
 
@@ -62,7 +43,7 @@ function Chat() {
     const fetchData = async () => {
       if (currentUser) {
         if (currentUser.isAvatarImageSet) {
-          const data = await axios.get(`${allUsersRoute}`, {
+          const data = await axios.get(`${getFriends}`, {
             headers: {
               'auth-token': localStorage.getItem('auth-token'),
             },

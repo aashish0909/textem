@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Logo from '../assets/logo.svg';
+import Friends from './Friends';
+import Logout from './Logout';
 
 export default function Contacts({ contacts, currentUser, changeChat }) {
   const [currentUserName, setCurrentUserName] = useState(undefined);
@@ -41,7 +43,7 @@ export default function Contacts({ contacts, currentUser, changeChat }) {
                 >
                   <div className='avatar'>
                     <img
-                      src={`data:image/svg+xml;base64,${contact.avatarImage}`}
+                      src={`data:image/png;base64,${contact.avatarImage}`}
                       alt='avatar'
                     />
                   </div>
@@ -55,13 +57,15 @@ export default function Contacts({ contacts, currentUser, changeChat }) {
           <div className='current-user'>
             <div className='avatar'>
               <img
-                src={`data:image/svg+xml;base64,${currentUserImage}`}
+                src={`data:image/png;base64,${currentUserImage}`}
                 alt='avatar'
               />
             </div>
             <div className='username'>
               <h2>{currentUserName}</h2>
             </div>
+            <Friends />
+            <Logout />
           </div>
         </Container>
       )}
@@ -102,7 +106,6 @@ const Container = styled.div`
       }
     }
     .contact {
-      background-color: #ffffff34;
       min-height: 5rem;
       cursor: pointer;
       width: 90%;
@@ -112,6 +115,9 @@ const Container = styled.div`
       gap: 1rem;
       align-items: center;
       transition: 0.5s ease-in-out;
+      &:hover {
+        background-color: #252545;
+      }
       .avatar {
         img {
           height: 3rem;
@@ -132,7 +138,7 @@ const Container = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 2rem;
+    gap: 1rem;
     .avatar {
       img {
         height: 4rem;
@@ -152,5 +158,20 @@ const Container = styled.div`
         }
       }
     }
+  }
+`;
+
+const Button = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: #9a86f3;
+  border: none;
+  cursor: pointer;
+  svg {
+    font-size: 1.3rem;
+    color: #ebe7ff;
   }
 `;

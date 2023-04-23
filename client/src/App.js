@@ -1,10 +1,10 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import SetAvatar from './components/SetAvatar';
 import Chat from './pages/Chat';
+import Friends from './pages/Friends';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Friends from './pages/Friends';
-import SetAvatar from './components/SetAvatar';
 
 const App = () => {
   return (

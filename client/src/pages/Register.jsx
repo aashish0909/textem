@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
 import logo from '../assets/logo.svg';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
 import { registerRoute } from '../utils/APIRoutes';
 
 function Register() {
@@ -62,7 +62,7 @@ function Register() {
       toast.error('Password should be of minimum 8 characters', toastOptions);
       return false;
     } else if (password !== confirmPassword) {
-      toast.error('Password and Confirm Passowrd should be same', toastOptions);
+      toast.error('Password and Confirm Password should be same', toastOptions);
       return false;
     }
 

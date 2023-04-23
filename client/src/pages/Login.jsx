@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
 import logo from '../assets/logo.svg';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
 import { loginRoute } from '../utils/APIRoutes';
 
 function Login() {
@@ -36,7 +36,7 @@ function Login() {
         username,
         password,
       });
-      if (res.data.success === false) {
+      if (res.data.status === false) {
         toast.error(res.data.msg, toastOptions);
       } else {
         localStorage.setItem('auth-token', res.data.token);

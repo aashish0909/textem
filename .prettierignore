@@ -1,3 +1,6 @@
 .idea
+.vscode
+.git
+node_modules
 client/build
 client/node_modules
